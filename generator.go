@@ -1,65 +1,146 @@
 package main
 
 import (
-	"encoding/json"
-	"log"
-	"os"
+	"reflect"
+	"strconv"
+	"strings"
 
-	"github.com/timshannon/bolthold"
+	"amock/generator"
+	"github.com/oriser/regroup"
 )
 
-func GenerateEntity(entity EntityJSON, table *Table) (Entity, *Table) {
-	fields := make(Entity, len(entity))
+var FieldPattern = regroup.MustCompile(`(?P<type>[a-z]+)(?P<subtype>\.[a-z]+)?(?P<params>:.*)?`)
+var NumberRangePattern = regroup.MustCompile(`(?P<min>(-?[0-9]+(\.[0-9]+)?)|x)?-(?P<max>(-?[0-9]+(\.[0-9]+)?)|x)?`)
 
-	for key, value := range entity {
-		fields[key], table = GenerateField(value, table)
-	}
-
-	return fields, table
+type Field struct {
+	Type    string `regroup:"type"`
+	Subtype string `regroup:"subtype"`
+	Params  string `regroup:"params"`
 }
 
-func HydrateDatabase(db Database) Database {
-	var entityJSON EntityJSON
+func GenerateField(field string, table *Table) (any, *Table) {
+	f := &Field{}
 
-	store, err := bolthold.Open("amock.db", 0666, nil)
+	err := FieldPattern.MatchToTarget(field, f)
+
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	for key, table := range db.Tables {
-		var updated Table
-		updated, store = CreateTable(&table, entityJSON, store)
-		db.Tables[key] = updated
+	var subtype, paramStr string
+	var params []string
+	var gen any
+
+	t := f.Type
+	if len(f.Subtype) > 1 {
+		subtype = strings.TrimLeft(f.Subtype, ".")
 	}
 
-	return db
+	gen = GetGenerator(t, subtype)
+
+	if len(f.Params) > 1 {
+		paramStr = strings.TrimLeft(f.Params, ":")
+
+		if f.Type == "number" {
+			params = strings.Split(paramStr, ",")
+			for i, p := range params {
+				if strings.Contains(p, "-") {
+					groups, _ := NumberRangePattern.Groups(p)
+					if groups["min"] == "" && groups["max"] == "" {
+						params[i] = "x-x"
+					} else {
+						params[i] = groups["min"]
+						params = append(params, groups["max"])
+					}
+				}
+			}
+		} else {
+			params = strings.Split(paramStr, ",")
+		}
+	} else if f.Type == "id" && subtype != "uuid" {
+		params = []string{strconv.Itoa(int(table.LastAutoID))}
+		table.LastAutoID = table.LastAutoID + 1
+	}
+
+	if len(params) > 0 {
+		params2 := make([]reflect.Value, len(params))
+		for i, p := range params {
+			params2[i] = reflect.ValueOf(p)
+		}
+		return reflect.ValueOf(gen).Call(params2)[0].Interface(), table
+	}
+
+	return reflect.ValueOf(gen).Call([]reflect.Value{})[0].Interface(), table
 }
 
-func CreateTable(table *Table, entityJSON EntityJSON, store *bolthold.Store) (Table, *bolthold.Store) {
-	raw, err := os.ReadFile(table.Definition)
+type GeneratorFunc any
 
-	if err != nil {
-		log.Fatal(err)
+type GeneratorMap map[string]GeneratorFunc
+
+var Generators = map[string]GeneratorMap{
+	"string": {
+		"root":       generator.StringGenerator{}.String,
+		"name":       generator.StringGenerator{}.FullName,
+		"firstname":  generator.StringGenerator{}.FirstName,
+		"lastname":   generator.StringGenerator{}.LastName,
+		"email":      generator.StringGenerator{}.Email,
+		"url":        generator.StringGenerator{}.Url,
+		"ip":         generator.StringGenerator{}.Ip,
+		"ipv6":       generator.StringGenerator{}.Ipv6,
+		"username":   generator.StringGenerator{}.Username,
+		"password":   generator.StringGenerator{}.Password,
+		"phone":      generator.StringGenerator{}.Phone,
+		"zip":        generator.StringGenerator{}.Zip,
+		"country":    generator.StringGenerator{}.Country,
+		"city":       generator.StringGenerator{}.City,
+		"street":     generator.StringGenerator{}.Street,
+		"streetName": generator.StringGenerator{}.StreetName,
+		"state":      generator.StringGenerator{}.State,
+		"company":    generator.StringGenerator{}.Company,
+		"bitcoin":    generator.StringGenerator{}.Bitcoin,
+		"color":      generator.StringGenerator{}.Color,
+		"word":       generator.StringGenerator{}.Word,
+		"sentence":   generator.StringGenerator{}.Sentence,
+		"paragraph":  generator.StringGenerator{}.Paragraph,
+	},
+	"number": {
+		"root":    generator.NumberGenerator{}.Number,
+		"int":     generator.NumberGenerator{}.Int,
+		"decimal": generator.NumberGenerator{}.Decimal,
+		"float":   generator.NumberGenerator{}.Float,
+		"range":   generator.NumberGenerator{}.FloatRange,
+	},
+	"date": {
+		"root":      generator.DateGenerator{}.Date,
+		"timestamp": generator.DateGenerator{}.Timestamp,
+		"day":       generator.DateGenerator{}.Day,
+		"month":     generator.DateGenerator{}.Month,
+		"year":      generator.DateGenerator{}.Year,
+		"weekday":   generator.DateGenerator{}.WeekDay,
+		"future":    generator.DateGenerator{}.Future,
+		"past":      generator.DateGenerator{}.Past,
+	},
+	"bool": {
+		"root": generator.BoolGenerator{}.Bool,
+	},
+	"enum": {
+		"root": generator.EnumGenerator{}.Enum,
+	},
+	"id": {
+		"root":     generator.IDGenerator{}.Sequence,
+		"sequence": generator.IDGenerator{}.Sequence,
+		"uuid":     generator.IDGenerator{}.UUID,
+	},
+}
+
+func GetGenerator(t string, subtype string) any {
+	var gen any
+
+	if subtype == "" {
+		gen = Generators[t]["root"]
+	} else {
+		gen = Generators[t][subtype]
 	}
 
-	err = json.Unmarshal(raw, &entityJSON)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	entities := make([]Entity, config.InitCount)
-
-	for i := 0; i < config.InitCount; i++ {
-		entities[i], table = GenerateEntity(entityJSON, table)
-	}
-
-	b, _ := json.Marshal(entities)
-
-	filename := table.Name + ".amock.json"
-
-	_ = os.WriteFile(filename, b, os.ModePerm)
-
-	table.File = filename
-
-	return *table, store
+	return gen
 }
