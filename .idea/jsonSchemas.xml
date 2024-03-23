@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JsonSchemaMappingsProjectConfiguration">
+    <state>
+      <map>
+        <entry key="AMock Schema">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="AMock Schema" />
+              <option name="relativePathToSchema" value="https://jsonschema.net/app/schemas/425038" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value=".amock" />
+                  </Item>
+                  <Item>
+                    <option name="path" value=".amock.json" />
+                  </Item>
+                  <Item>
+                    <option name="path" value=".amockrc" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="amock.config" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="amock.json" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+      </map>
+    </state>
+  </component>
+</project>
