@@ -8,6 +8,7 @@
 *.dll
 *.so
 *.dylib
+amock
 
 # Test binary, built with `go test -c`
 *.test
@@ -21,3 +22,6 @@ pkg/
 
 # Go workspace file
 go.work
+
+# amock files
++.amock.json
