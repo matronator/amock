@@ -2,9 +2,12 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -23,6 +26,8 @@ var ConfigPaths = []string{
 	"amock.yaml",
 	"amock.toml",
 }
+
+var DataDir = path.Join(".amock", "data")
 
 type Database struct {
 	Tables map[string]Table
@@ -43,39 +48,19 @@ type Config struct {
 	InitCount int      `yaml:"init_count" env:"INIT_COUNT" env-default:"20"`
 }
 
-type Entity map[string]interface{}
+type Entity map[string]any
+
+type EntityCollection []Entity
 
 type EntityJSON map[string]string
-
-// func PostRequest(url string, data Entity) {
-// 	store, _ := bh.Open("db", os.ModePerm, nil)
-//
-// 	defer func(store *bh.Store) {
-// 		err := store.Close()
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// 	}(store)
-//
-// 	_ = store.Insert(data["id"], data["value"])
-// }
-//
-// func GetRequest(url string) Entity {
-//
-// }
-//
-// func PostHandler(w http.ResponseWriter, r *http.Request) {
-//
-// 	_, _ = fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
-// }
-
-// var api EntityJSON
 
 var config *Config
 
 var db Database
 
 func Init() {
+	fmt.Println("Creating database from config...")
+
 	config, _ = ParseConfigFiles(ConfigPaths...)
 
 	if config == nil {
@@ -120,11 +105,29 @@ func Init() {
 		}
 	}
 
+	if _, err := os.Stat(DataDir); errors.Is(err, os.ErrNotExist) {
+		err = os.MkdirAll(DataDir, os.ModePerm)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	db = HydrateDatabase(db)
 }
 
 func main() {
 	Init()
+	router := InitHandlers(config, db)
+
+	var url string
+	if strings.Contains(config.Host, "http://") || strings.Contains(config.Host, "https://") {
+		url = config.Host + ":" + strconv.Itoa(config.Port)
+	} else {
+		url = "http://" + config.Host + ":" + strconv.Itoa(config.Port)
+	}
+
+	fmt.Println("\nStarting server at " + url)
+	log.Fatal(http.ListenAndServe(config.Host+":"+strconv.Itoa(config.Port), LogRequest(router)))
 }
 
 func ParseConfigFiles(files ...string) (*Config, error) {
