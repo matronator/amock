@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/jwalton/gchalk"
 )
 
 var ConfigPaths = []string{
@@ -32,6 +33,13 @@ var DataDir = path.Join(".amock", "data")
 type Database struct {
 	Tables map[string]Table
 }
+
+type Route struct {
+	Method string
+	Path   string
+}
+
+var Routes []Route
 
 type Table struct {
 	Name       string
@@ -58,8 +66,9 @@ var config *Config
 
 var db Database
 
-func Init() {
-	fmt.Println("Creating database from config...")
+func init() {
+	InitLogger()
+	Debug("Creating database from config...")
 
 	config, _ = ParseConfigFiles(ConfigPaths...)
 
@@ -112,13 +121,12 @@ func Init() {
 		}
 	}
 
+	Debug("Database created")
+
 	db = HydrateDatabase(db)
 }
 
 func main() {
-	Init()
-	router := InitHandlers(config, db)
-
 	var url string
 	if strings.Contains(config.Host, "http://") || strings.Contains(config.Host, "https://") {
 		url = config.Host + ":" + strconv.Itoa(config.Port)
@@ -126,7 +134,15 @@ func main() {
 		url = "http://" + config.Host + ":" + strconv.Itoa(config.Port)
 	}
 
-	fmt.Println("\nStarting server at " + url)
+	fmt.Println(gchalk.Bold("Starting server at " + url))
+	fmt.Println("\nAvailable routes:")
+
+	router := InitHandlers(config, db)
+	for _, route := range Routes {
+		fmt.Println("  " + gchalk.Italic(route.Method) + " " + url + route.Path)
+	}
+	fmt.Println("")
+
 	log.Fatal(http.ListenAndServe(config.Host+":"+strconv.Itoa(config.Port), LogRequest(router)))
 }
 

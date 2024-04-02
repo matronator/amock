@@ -24,6 +24,7 @@ func GenerateEntity(entity EntityJSON, table *Table) (Entity, *Table) {
 
 func HydrateDatabase(db Database) Database {
 	now := time.Now()
+	Debug("Building database...")
 
 	var entityJSON EntityJSON
 
@@ -33,7 +34,7 @@ func HydrateDatabase(db Database) Database {
 	}
 
 	elapsed := time.Since(now).String()
-	fmt.Println(gchalk.Italic("Database is ready! " + gchalk.Dim("("+elapsed+")")))
+	Debug("Database is ready! " + gchalk.Italic("("+elapsed+")"))
 
 	return db
 }
@@ -44,7 +45,7 @@ func CreateTable(table *Table, entityJSON EntityJSON) Table {
 
 	if _, err := os.Stat(dir); !errors.Is(err, os.ErrNotExist) {
 		table.File = dir
-		fmt.Println(gchalk.Dim("Table", gchalk.Bold(table.Name), "found at", gchalk.Italic(dir), "- skipping..."))
+		Debug("Table "+gchalk.Bold(table.Name)+" found at "+gchalk.Italic(dir)+" - skipping...", "table", table.Name, "file", dir)
 
 		return *table
 	}
@@ -72,7 +73,7 @@ func CreateTable(table *Table, entityJSON EntityJSON) Table {
 
 	table.File = dir
 
-	fmt.Println(gchalk.Dim("Table", gchalk.Bold(table.Name), "created at", gchalk.Italic(dir), "from file", gchalk.Bold(table.Definition)))
+	Debug("Table "+gchalk.Bold(table.Name)+" created at "+gchalk.Italic(dir)+" from file "+gchalk.Bold(table.Definition), "table", table.Name, "file", dir, "schema", table.Definition)
 
 	return *table
 }

@@ -1,0 +1,4 @@
+### GET request to example server
+PUT localhost:8000/user
+
+###
