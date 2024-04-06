@@ -57,7 +57,7 @@ func LogRequest(next http.Handler) http.Handler {
 		log.SetPrefix("[amock]: ")
 
 		remoteAddr := gchalk.Bold(r.RemoteAddr)
-		method := requestMethodColor(r.Method)
+		method := RequestMethodColor(r.Method, true)
 		recorder := &StatusRecorder{w, http.StatusOK}
 
 		next.ServeHTTP(recorder, r)
@@ -71,26 +71,37 @@ func LogRequest(next http.Handler) http.Handler {
 	})
 }
 
-func requestMethodColor(m string) string {
-	var method string
+func RequestMethodColor(m string, inverse bool) string {
+	method := m
+
+	if inverse {
+		method = " " + m + " "
+	}
+
 	switch m {
 	case http.MethodGet:
-		method = gchalk.WithBrightWhite().WithBold().BgBrightBlue(" " + m + " ")
+		method = gchalk.WithBold().BrightBlue(method)
 	case http.MethodPost:
-		method = gchalk.WithBrightWhite().WithBold().BgBrightGreen(" " + m + " ")
+		method = gchalk.WithBold().BrightGreen(method)
 	case http.MethodPut:
-		method = gchalk.WithBrightWhite().WithBold().BgBrightYellow(" " + m + " ")
+		method = gchalk.WithBold().BrightYellow(method)
 	case http.MethodPatch:
-		method = gchalk.WithBrightWhite().WithBold().BgBrightCyan(" " + m + " ")
+		method = gchalk.WithBold().BrightCyan(method)
 	case http.MethodDelete:
-		method = gchalk.WithBrightWhite().WithBold().BgRed(" " + m + " ")
+		method = gchalk.WithBold().Red(method)
 	case http.MethodOptions:
-		method = gchalk.WithBrightWhite().WithBold().BgBlue(" " + m + " ")
+		method = gchalk.WithBold().Blue(method)
 	case http.MethodHead:
-		method = gchalk.WithBrightWhite().WithBold().BgMagenta(" " + m + " ")
+		method = gchalk.WithBold().Magenta(method)
 	default:
 		method = m
 	}
+
+	if inverse {
+		method = gchalk.BgBrightWhite(method)
+		method = gchalk.Inverse(method)
+	}
+
 	return method
 }
 

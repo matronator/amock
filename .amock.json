@@ -2,6 +2,8 @@
     "host": "localhost",
     "port": 8000,
     "entities": [
-      "user.json"
-    ]
+        "user.json",
+        "post.json"
+    ],
+    "initCount": 1
 }

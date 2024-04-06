@@ -29,6 +29,7 @@ var ConfigPaths = []string{
 }
 
 var DataDir = path.Join(".amock", "data")
+var SchemaDir = path.Join(".amock", "schema")
 
 type Database struct {
 	Tables map[string]Table
@@ -42,10 +43,12 @@ type Route struct {
 var Routes []Route
 
 type Table struct {
-	Name       string
-	File       string
-	Definition string
-	LastAutoID uint
+	Name           string
+	File           string
+	DefinitionFile string
+	Definition     map[string]*Field
+	SchemaFile     string
+	LastAutoID     uint
 }
 
 type Config struct {
@@ -53,7 +56,7 @@ type Config struct {
 	Port      int      `yaml:"port" env:"PORT" env-default:"8080"`
 	Dir       string   `yaml:"dir" env:"DIR"`
 	Entities  []string `yaml:"entities" env:"ENTITIES"`
-	InitCount int      `yaml:"init_count" env:"INIT_COUNT" env-default:"20"`
+	InitCount int      `yaml:"initCount" env:"INIT_COUNT" env-default:"20"`
 }
 
 type Entity map[string]any
@@ -76,43 +79,7 @@ func init() {
 		log.Fatal("No configuration file found")
 	}
 
-	db.Tables = make(map[string]Table)
-
-	if config.Dir != "" {
-		dir, err := os.ReadDir(config.Dir)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		for _, entry := range dir {
-			filename := entry.Name()
-
-			if path.Ext(filename) == ".json" {
-				name := strings.ToLower(filename[:len(filename)-5])
-				db.Tables[name] = Table{
-					Name:       name,
-					Definition: path.Join(config.Dir, filename),
-					File:       filename,
-					LastAutoID: 1,
-				}
-			}
-		}
-	}
-
-	if len(config.Entities) > 0 {
-		for _, entity := range config.Entities {
-			if path.Ext(entity) == ".json" {
-				name := entity[:len(entity)-5]
-				db.Tables[name] = Table{
-					Name:       name,
-					Definition: entity,
-					File:       path.Base(entity),
-					LastAutoID: 1,
-				}
-			}
-		}
-	}
+	buildTablesFromConfig()
 
 	if _, err := os.Stat(DataDir); errors.Is(err, os.ErrNotExist) {
 		err = os.MkdirAll(DataDir, os.ModePerm)
@@ -121,9 +88,16 @@ func init() {
 		}
 	}
 
+	if _, err := os.Stat(SchemaDir); errors.Is(err, os.ErrNotExist) {
+		err = os.MkdirAll(SchemaDir, os.ModePerm)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	Debug("Database created")
 
-	db = HydrateDatabase(db)
+	db = *HydrateDatabase(&db)
 }
 
 func main() {
@@ -137,9 +111,9 @@ func main() {
 	fmt.Println(gchalk.Bold("Starting server at " + url))
 	fmt.Println("\nAvailable routes:")
 
-	router := InitHandlers(config, db)
+	router := InitHandlers(config, &db)
 	for _, route := range Routes {
-		fmt.Println("  " + gchalk.Italic(route.Method) + " " + url + route.Path)
+		fmt.Println("  " + gchalk.Bold(RequestMethodColor(route.Method, false)) + "\t" + url + route.Path + "\t" + gchalk.Dim("[entity: "+gchalk.WithItalic().Bold(strings.TrimPrefix(route.Path, "/"))+"]"))
 	}
 	fmt.Println("")
 
@@ -162,4 +136,46 @@ func ParseConfigFiles(files ...string) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func buildTablesFromConfig() {
+	db.Tables = make(map[string]Table)
+
+	if config.Dir != "" {
+		dir, err := os.ReadDir(config.Dir)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, entry := range dir {
+			filename := entry.Name()
+
+			if path.Ext(filename) == ".json" {
+				name := strings.ToLower(filename[:len(filename)-5])
+				db.Tables[name] = Table{
+					Name:           name,
+					DefinitionFile: path.Join(config.Dir, filename),
+					Definition:     make(map[string]*Field),
+					File:           filename,
+					LastAutoID:     1,
+				}
+			}
+		}
+	}
+
+	if len(config.Entities) > 0 {
+		for _, entity := range config.Entities {
+			if path.Ext(entity) == ".json" {
+				name := entity[:len(entity)-5]
+				db.Tables[name] = Table{
+					Name:           name,
+					DefinitionFile: entity,
+					Definition:     make(map[string]*Field),
+					File:           path.Base(entity),
+					LastAutoID:     1,
+				}
+			}
+		}
+	}
 }

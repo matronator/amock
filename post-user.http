@@ -1,3 +1,15 @@
+POST localhost:8000/user
+Content-Type: application/json
+
+{
+    "name": "John",
+    "surname": "Doe",
+    "city": null,
+    "age": 25
+}
+
+###
+
 ### GET request to example server
 PUT localhost:8000/user
 

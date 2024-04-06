@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/jwalton/gchalk"
@@ -16,13 +17,26 @@ func GenerateEntity(entity EntityJSON, table *Table) (Entity, *Table) {
 	fields := make(Entity, len(entity))
 
 	for key, value := range entity {
-		fields[key], table = GenerateField(value, table)
+		options := FieldOptions{false, false, false}
+		fieldName := key
+
+		if strings.HasSuffix(key, "!") {
+			options.Required = true
+			fieldName = strings.TrimSuffix(key, "!")
+		} else if strings.HasSuffix(key, "?") {
+			options.Nullable = true
+			fieldName = strings.TrimSuffix(key, "?")
+		} else if strings.HasSuffix(key, "[]") {
+			options.Children = true
+			fieldName = strings.TrimSuffix(key, "[]")
+		}
+		fields[fieldName], table = GenerateField(fieldName, value, table, options)
 	}
 
 	return fields, table
 }
 
-func HydrateDatabase(db Database) Database {
+func HydrateDatabase(db *Database) *Database {
 	now := time.Now()
 	Debug("Building database...")
 
@@ -30,7 +44,7 @@ func HydrateDatabase(db Database) Database {
 
 	for key, table := range db.Tables {
 		updated := CreateTable(&table, entityJSON)
-		db.Tables[key] = updated
+		db.Tables[key] = *updated
 	}
 
 	elapsed := time.Since(now).String()
@@ -39,18 +53,33 @@ func HydrateDatabase(db Database) Database {
 	return db
 }
 
-func CreateTable(table *Table, entityJSON EntityJSON) Table {
+func CreateTable(table *Table, entityJSON EntityJSON) *Table {
 	filename := table.Name + ".amock.json"
 	dir := path.Join(DataDir, filename)
+	schemaDir := path.Join(SchemaDir, table.Name+".amock.schema.json")
 
 	if _, err := os.Stat(dir); !errors.Is(err, os.ErrNotExist) {
-		table.File = dir
-		Debug("Table "+gchalk.Bold(table.Name)+" found at "+gchalk.Italic(dir)+" - skipping...", "table", table.Name, "file", dir)
+		if _, err = os.Stat(schemaDir); !errors.Is(err, os.ErrNotExist) {
+			Debug("Table "+gchalk.Bold(table.Name)+" found at "+gchalk.Italic(dir)+" - skipping...", "table", table.Name, "file", dir, "schema", schemaDir)
+			table.File = dir
+			table.SchemaFile = schemaDir
 
-		return *table
+			var schema []byte
+			schema, err = os.ReadFile(table.SchemaFile)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			err = json.Unmarshal(schema, &table.Definition)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			return table
+		}
 	}
 
-	raw, err := os.ReadFile(table.Definition)
+	raw, err := os.ReadFile(table.DefinitionFile)
 
 	if err != nil {
 		log.Fatal(err)
@@ -67,15 +96,18 @@ func CreateTable(table *Table, entityJSON EntityJSON) Table {
 		entities[i], table = GenerateEntity(entityJSON, table)
 	}
 
+	schema, _ := json.Marshal(table.Definition)
+	_ = os.WriteFile(schemaDir, schema, os.ModePerm)
+
 	b, _ := json.Marshal(entities)
 
 	_ = os.WriteFile(dir, b, os.ModePerm)
 
 	table.File = dir
 
-	Debug("Table "+gchalk.Bold(table.Name)+" created at "+gchalk.Italic(dir)+" from file "+gchalk.Bold(table.Definition), "table", table.Name, "file", dir, "schema", table.Definition)
+	Debug("Table "+gchalk.Bold(table.Name)+" created at "+gchalk.Italic(dir)+" from file "+gchalk.Bold(table.DefinitionFile), "table", table.Name, "file", dir, "schema", table.DefinitionFile)
 
-	return *table
+	return table
 }
 
 func GetTable(table *Table) ([]byte, error) {
@@ -113,6 +145,20 @@ func WriteTable(table *Table, collection EntityCollection) error {
 	}
 
 	err = os.WriteFile(table.File, b, os.ModePerm)
+
+	return err
+}
+
+func AppendTable(table *Table, entity Entity) error {
+	collection, err := ReadTable(table)
+
+	if err != nil {
+		return err
+	}
+
+	collection = append(collection, entity)
+
+	err = WriteTable(table, collection)
 
 	return err
 }

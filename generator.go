@@ -13,35 +13,37 @@ var FieldPattern = regroup.MustCompile(`(?P<type>[a-z]+)(?P<subtype>\.[a-z]+)?(?
 var NumberRangePattern = regroup.MustCompile(`(?P<min>(-?[0-9]+(\.[0-9]+)?)|x)?-(?P<max>(-?[0-9]+(\.[0-9]+)?)|x)?`)
 
 type Field struct {
-	Type    string `regroup:"type"`
-	Subtype string `regroup:"subtype"`
-	Params  string `regroup:"params"`
+	Type     string `regroup:"type" json:"type"`
+	Subtype  string `regroup:"subtype" json:"subtype"`
+	Params   string `regroup:"params" json:"params"`
+	Required bool   `json:"required"`
+	Nullable bool   `json:"nullable"`
 }
 
-func GenerateField(field string, table *Table) (any, *Table) {
-	f := &Field{}
+type FieldOptions struct {
+	Required bool
+	Nullable bool
+	Children bool
+}
 
-	err := FieldPattern.MatchToTarget(field, f)
+func GenerateField(fieldName string, field string, table *Table, options FieldOptions) (any, *Table) {
+	f := *GetFieldType(field)
+	f.Required = options.Required
+	f.Nullable = options.Nullable
+	table.Definition[fieldName] = &f
 
-	if err != nil {
-		panic(err)
-	}
+	return GenerateEntityField(f, table)
+}
 
-	var subtype, paramStr string
+func GenerateEntityField(field Field, table *Table) (any, *Table) {
+	gen := GetGenerator(field.Type, field.Subtype)
+	var paramStr string
 	var params []string
-	var gen any
 
-	t := f.Type
-	if len(f.Subtype) > 1 {
-		subtype = strings.TrimLeft(f.Subtype, ".")
-	}
+	if len(field.Params) > 1 {
+		paramStr = strings.TrimLeft(field.Params, ":")
 
-	gen = GetGenerator(t, subtype)
-
-	if len(f.Params) > 1 {
-		paramStr = strings.TrimLeft(f.Params, ":")
-
-		if f.Type == "number" {
+		if field.Type == "number" {
 			params = strings.Split(paramStr, ",")
 			for i, p := range params {
 				if strings.Contains(p, "-") {
@@ -57,7 +59,7 @@ func GenerateField(field string, table *Table) (any, *Table) {
 		} else {
 			params = strings.Split(paramStr, ",")
 		}
-	} else if f.Type == "id" && subtype != "uuid" {
+	} else if field.Type == "id" && field.Subtype != "uuid" {
 		params = []string{strconv.Itoa(int(table.LastAutoID))}
 		table.LastAutoID = table.LastAutoID + 1
 	}
@@ -71,6 +73,26 @@ func GenerateField(field string, table *Table) (any, *Table) {
 	}
 
 	return reflect.ValueOf(gen).Call([]reflect.Value{})[0].Interface(), table
+}
+
+func GetFieldType(field string) *Field {
+	f := &Field{}
+
+	err := FieldPattern.MatchToTarget(field, f)
+
+	if err != nil {
+		panic(err)
+	}
+
+	var subtype string
+
+	if len(f.Subtype) > 1 {
+		subtype = strings.TrimLeft(f.Subtype, ".")
+	}
+
+	f.Subtype = subtype
+
+	return f
 }
 
 type GeneratorFunc any

@@ -1,0 +1,6 @@
+{
+  "id": "id.uuid",
+  "user_id": "id.sequence",
+  "title!": "string.word",
+  "content": "string.paragraph"
+}

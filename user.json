@@ -1,19 +1,20 @@
 {
   "id": "id.sequence",
-  "name": "string.firstname",
-  "surname": "string.lastname",
+  "name!": "string.firstname",
+  "surname!": "string.lastname",
   "age": "number.int:18-64",
   "birthday": "date:yyyy-MM-dd",
   "money": "number.decimal:2,0-10000",
   "email": "string.email",
   "password": "string.password",
   "username": "string.username",
-  "city": "string.city",
-  "street": "string.street",
-  "country": "string.country:short",
+  "city?": "string.city",
+  "street?": "string.street",
+  "country?": "string.country:short",
   "role": "enum:admin,user,moderator",
   "is_active": "bool",
   "token": "string",
   "created_at": "date.timestamp",
-  "updated_at": "date.timestamp"
+  "updated_at": "date.timestamp",
+  "posts[]": "post.json"
 }
