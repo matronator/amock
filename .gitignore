@@ -8,7 +8,6 @@
 *.dll
 *.so
 *.dylib
-amock
 
 # Test binary, built with `go test -c`
 *.test
