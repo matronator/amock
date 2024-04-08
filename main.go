@@ -35,13 +35,6 @@ type Database struct {
 	Tables map[string]Table
 }
 
-type Route struct {
-	Method string
-	Path   string
-}
-
-var Routes []Route
-
 type Table struct {
 	Name           string
 	File           string
@@ -113,7 +106,7 @@ func main() {
 
 	router := InitHandlers(config, &db)
 	for _, route := range Routes {
-		fmt.Println("  " + gchalk.Bold(RequestMethodColor(route.Method, false)) + "\t" + url + route.Path + "\t" + gchalk.Dim("[entity: "+gchalk.WithItalic().Bold(strings.TrimPrefix(route.Path, "/"))+"]"))
+		fmt.Println("  " + gchalk.Bold(RequestMethodColor(route.Method, false)) + "\t" + url + route.Path + "\t" + gchalk.Dim("[entity: "+gchalk.WithItalic().Bold(strings.Split(route.Path, "/")[1])+"]"))
 	}
 	fmt.Println("")
 

@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -118,6 +119,29 @@ func GetTable(table *Table) ([]byte, error) {
 	}
 
 	return raw, err
+}
+
+func GetEntity(table *Table, id string) ([]byte, error) {
+	collection, err := ReadTable(table)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entity := range collection {
+		newId, _ := strconv.ParseFloat(id, 64)
+		if entity["id"] == newId {
+			b, err2 := json.Marshal(entity)
+			if err2 != nil {
+				return nil, fmt.Errorf("could not marshal entity: %w", err2)
+			}
+
+			return b, err
+		}
+	}
+
+	return nil, errors.New("entity not found")
+
 }
 
 func ReadTable(table *Table) (EntityCollection, error) {
