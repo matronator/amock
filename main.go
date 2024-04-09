@@ -94,12 +94,11 @@ func init() {
 }
 
 func main() {
-	var url string
-	if strings.Contains(config.Host, "http://") || strings.Contains(config.Host, "https://") {
-		url = config.Host + ":" + strconv.Itoa(config.Port)
-	} else {
-		url = "http://" + config.Host + ":" + strconv.Itoa(config.Port)
-	}
+	StartServer()
+}
+
+func StartServer() {
+	url := constructUrl()
 
 	fmt.Println(gchalk.Bold("Starting server at " + url))
 	fmt.Println("\nAvailable routes:")
@@ -171,4 +170,14 @@ func buildTablesFromConfig() {
 			}
 		}
 	}
+}
+
+func constructUrl() string {
+	var url string
+	if strings.Contains(config.Host, "http://") || strings.Contains(config.Host, "https://") {
+		url = config.Host + ":" + strconv.Itoa(config.Port)
+	} else {
+		url = "http://" + config.Host + ":" + strconv.Itoa(config.Port)
+	}
+	return url
 }

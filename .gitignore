@@ -25,3 +25,5 @@ go.work
 # amock files
 +.amock.json
 .amock/
+
+dist/

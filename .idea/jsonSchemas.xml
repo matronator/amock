@@ -3,11 +3,11 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
-        <entry key="AMock Schema">
+        <entry key="Amock Schema">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="AMock Schema" />
+              <option name="name" value="Amock Schema" />
               <option name="relativePathToSchema" value="https://jsonschema.net/app/schemas/425038" />
               <option name="patterns">
                 <list>
