@@ -1,0 +1,99 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+
+# The lines below are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/need to use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 1
+
+before:
+  hooks:
+    - go mod download
+    - go mod tidy
+
+builds:
+  - main: ./main.go
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    targets:
+      - linux_amd64
+      - darwin_amd64
+      - darwin_arm64
+      - windows_amd64
+    ldflags:
+      - -s -w
+
+archives:
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^*.md:"
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+brews:
+  - # GitHub/GitLab repository to push the formula to
+    tap:
+      owner: matronator
+      name: amock
+
+    name: amock
+    # Template for the url which is determined by the given Token (github or gitlab)
+    # Default for github is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/matronator/amock/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+
+    homepage: https://github.com/matronator/amock
+
+    # Git author used to commit to the repository.
+    # Defaults are shown.
+    commit_author:
+      name: matronator
+      email: info@matronator.cz
+
+    folder: Formula
+
+    # Caveats for the user of your binary.
+    # Default is empty.
+    caveats: ""
+
+    # Your app's description.
+    # Default is empty.
+    description: "A simple mock server for REST APIs."
+
+    # SPDX identifier of your app's license.
+    # Default is empty.
+    license: "MIT"
+
+    # Packages your package depends on.
+    dependencies:
+      - name: git
+      - name: go

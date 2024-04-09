@@ -12,6 +12,7 @@ require (
 	github.com/jwalton/go-supportscolor v1.1.0 // indirect
 	github.com/oriser/regroup v0.0.0-20230527212431-1b00c9bdbc5b // indirect
 	github.com/timshannon/bolthold v0.0.0-20231129192944-dca5178aa629 // indirect
+	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.etcd.io/bbolt v1.3.8 // indirect
 	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53 // indirect
 	golang.org/x/sys v0.15.0 // indirect
