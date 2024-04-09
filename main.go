@@ -45,11 +45,11 @@ type Table struct {
 }
 
 type Config struct {
-	Host      string   `yaml:"host" env:"HOST" env-default:"localhost"`
-	Port      int      `yaml:"port" env:"PORT" env-default:"8080"`
-	Dir       string   `yaml:"dir" env:"DIR"`
-	Entities  []string `yaml:"entities" env:"ENTITIES"`
-	InitCount int      `yaml:"initCount" env:"INIT_COUNT" env-default:"20"`
+	Host      string   `yaml:"host" env:"AMOCK_HOST" env-default:"localhost"`
+	Port      int      `yaml:"port" env:"AMOCK_PORT" env-default:"8080"`
+	Dir       string   `yaml:"dir" env:"AMOCK_DIR"`
+	Entities  []string `yaml:"entities" env:"AMOCK_ENTITIES"`
+	InitCount int      `yaml:"initCount" env:"AMOCK_INIT_COUNT" env-default:"20"`
 }
 
 type Entity map[string]any
