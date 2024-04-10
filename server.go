@@ -42,7 +42,7 @@ func InitHandlers(config *Config, db *Database) *httprouter.Router {
 
 		Routes = append(Routes, Route{"GET", "/" + table.Name + "/:id"})
 		router.GET("/"+table.Name+"/:id", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-			content, err := GetEntity(&table, ps.ByName("id"))
+			content, err := GetEntityById(&table, ps.ByName("id"))
 
 			if err != nil {
 				if strings.Contains(err.Error(), "entity not found") {
@@ -80,7 +80,6 @@ func InitHandlers(config *Config, db *Database) *httprouter.Router {
 func handlePost(w http.ResponseWriter, r *http.Request, table *Table) {
 	contentType := r.Header.Get("Content-Type")
 	Debug("Content-Type is " + contentType)
-	w.Header().Set("Content-Type", "application/json")
 
 	switch strings.ToLower(contentType) {
 	case "application/json":
@@ -157,6 +156,8 @@ func handlePost(w http.ResponseWriter, r *http.Request, table *Table) {
 	default:
 		http.Error(w, "Invalid content type", http.StatusBadRequest)
 	}
+
+	w.Header().Set("Content-Type", "application/json")
 }
 
 func handleJsonObject(data Entity, table *Table) (HTTPResponse, *Entity, *Table) {
@@ -203,5 +204,5 @@ func createEntityFromData(data Entity, table *Table) (*Entity, *Table, HTTPRespo
 			entity[key], table = GenerateEntityField(*field, table)
 		}
 	}
-	return &entity, table, HTTPResponse{}
+	return &entity, table, HTTPResponse{true, http.StatusCreated, "Entity created!"}
 }

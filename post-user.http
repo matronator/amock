@@ -14,3 +14,8 @@ Content-Type: application/json
 PUT localhost:8000/user
 
 ###
+
+### GET request to example server
+GET localhost:8000/user/1
+
+###

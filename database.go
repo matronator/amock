@@ -14,6 +14,49 @@ import (
 	"github.com/jwalton/gchalk"
 )
 
+type Database struct {
+	Tables map[string]Table
+}
+
+type Table struct {
+	Name           string
+	File           string
+	DefinitionFile string
+	Definition     map[string]*Field
+	SchemaFile     string
+	LastAutoID     uint
+}
+
+type Entity map[string]any
+
+type EntityCollection []Entity
+
+type EntityJSON map[string]string
+
+type Filter struct {
+	Field    string
+	Operator string
+	Value    any
+	Apply    func(EntityCollection) EntityCollection
+}
+
+type Sort struct {
+	Field string
+	Order string
+}
+
+type PaginatedItems struct {
+	First int
+	Last  int
+	Prev  int
+	Next  int
+	Pages int
+	Count int
+	Items EntityCollection
+}
+
+type EntityIds map[string]uint
+
 func GenerateEntity(entity EntityJSON, table *Table) (Entity, *Table) {
 	fields := make(Entity, len(entity))
 
@@ -111,6 +154,10 @@ func CreateTable(table *Table, entityJSON EntityJSON) *Table {
 	return table
 }
 
+// func SearchTable(table *Table, filters map[string]any) (EntityCollection, error) {
+//
+// }
+
 func GetTable(table *Table) ([]byte, error) {
 	raw, err := os.ReadFile(table.File)
 
@@ -121,27 +168,46 @@ func GetTable(table *Table) ([]byte, error) {
 	return raw, err
 }
 
-func GetEntity(table *Table, id string) ([]byte, error) {
+func GetEntityById(table *Table, id string) ([]byte, error) {
 	collection, err := ReadTable(table)
-
 	if err != nil {
 		return nil, err
 	}
 
-	for _, entity := range collection {
-		newId, _ := strconv.ParseFloat(id, 64)
-		if entity["id"] == newId {
-			b, err2 := json.Marshal(entity)
-			if err2 != nil {
-				return nil, fmt.Errorf("could not marshal entity: %w", err2)
-			}
+	var (
+		entity *Entity
+		found  bool
+	)
 
-			return b, err
+	newId, err := strconv.ParseFloat(id, 64)
+	if err != nil {
+		entity, found = FindBy[string](&collection, "id", id)
+	} else {
+		entity, found = FindBy[float64](&collection, "id", newId)
+	}
+
+	if !found {
+		return nil, errors.New("entity not found, id: " + id)
+	}
+
+	b, err := json.Marshal(entity)
+	if err != nil {
+		return nil, fmt.Errorf("could not marshal entity: %w", err)
+	}
+
+	return b, err
+}
+
+func FindBy[T comparable](collection *EntityCollection, key string, search T) (*Entity, bool) {
+	for _, entity := range *collection {
+		Debug("Comparing", "key", key, "search", search, "entity", entity[key])
+		if entity[key] == search {
+			Debug("Found entity", "entity", entity)
+			return &entity, true
 		}
 	}
 
-	return nil, errors.New("entity not found")
-
+	return nil, false
 }
 
 func ReadTable(table *Table) (EntityCollection, error) {

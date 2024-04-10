@@ -87,8 +87,8 @@ Alternatively you can define environment variables or an `.env` file to configur
 ```dotenv
 AMOCK_HOST=localhost
 AMOCK_PORT=8080
-AMOCK_DIR=path/to/entities# default is empty
-AMOCK_ENTITIES='[user.json, post.json]'# default is empty
+AMOCK_DIR='path/to/entities' # default is empty
+AMOCK_ENTITIES='[user.json, post.json]' # default is empty
 AMOCK_INIT_COUNT=20
 ```
 
