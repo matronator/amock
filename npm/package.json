@@ -1,0 +1,39 @@
+{
+  "name": "amock-cli",
+  "version": "0.1.1",
+  "description": "Simple API mock server",
+  "main": "index.js",
+  "directories": {
+    "example": "../examples"
+  },
+  "scripts": {
+    "postinstall": "go-npm install",
+    "preuninstall": "go-npm uninstall"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matronator/amock.git"
+  },
+  "keywords": [
+    "server",
+    "api-server",
+    "api",
+    "mock",
+    "mock-api",
+    "json-server"
+  ],
+  "author": "Matronator <info@matronator.cz>",
+  "license": "https://github.com/matronator/amock#LICENSE",
+  "bugs": {
+    "url": "https://github.com/matronator/amock/issues"
+  },
+  "homepage": "https://github.com/matronator/amock#README.md",
+  "dependencies": {
+    "@go-task/go-npm": "^0.2.0"
+  },
+  "goBinary": {
+    "name": "amock",
+    "path": "./bin",
+    "url": "https://github.com/matronator/amock/releases/download/v{{version}}/amock_{{platform}}_{{arch}}.{{archive_ext}}"
+  }
+}
