@@ -34,6 +34,6 @@
   "goBinary": {
     "name": "amock",
     "path": "./bin",
-    "url": "https://github.com/matronator/amock/releases/download/v{{version}}/amock_{{platform}}_{{arch}}.{{archive_ext}}"
+    "url": "https://github.com/matronator/amock/releases/download/v{{version}}/amock_{{platform}}_{{arch}}{{archive_ext}}"
   }
 }
