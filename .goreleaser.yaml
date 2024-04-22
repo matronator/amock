@@ -84,6 +84,7 @@ brews:
       owner: matronator
       name: homebrew-tap
       branch: main
+      token: ${{ secrets.BREW_TOKEN }}
 
     # Caveats for the user of your binary.
     # Default is empty.
