@@ -12,7 +12,6 @@ before:
   hooks:
     - go mod download
     - go mod tidy
-    - cd npm && npm version from-git
 
 builds:
   - env:
