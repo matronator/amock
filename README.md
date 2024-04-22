@@ -10,9 +10,23 @@ Amock is a simple API mock server that uses JSON files to define entities from w
 * [Amock](#amock)
     * [API Mock Server](#api-mock-server)
   * [Instalation](#instalation)
+    * [npm (macOS, Linux, Windows)](#npm-macos-linux-windows)
+    * [GoBinaries (macOS, Linux)](#gobinaries-macos-linux)
     * [Homebrew (macOS)](#homebrew-macos)
-    * [Download from releases (macOS, Linux, Windows)](#download-from-releases-macos-linux-windows)
-    * [Manual installation (macOS, Linux, Windows)](#manual-installation-macos-linux-windows)
+    * [Manually download from releases (macOS, Linux, Windows)](#manually-download-from-releases-macos-linux-windows)
+      * [1. Move the binary to `/usr/local/bin` or some other folder in your PATH:](#1-move-the-binary-to-usrlocalbin-or-some-other-folder-in-your-path)
+        * [macOS/Linux](#macoslinux)
+        * [Windows](#windows)
+      * [2. Add the directory to your PATH:](#2-add-the-directory-to-your-path)
+        * [macOS/Linux](#macoslinux-1)
+        * [Windows](#windows-1)
+          * [With GUI (recommended)](#with-gui-recommended)
+          * [With PowerShell](#with-powershell)
+    * [Build from source (macOS, Linux, Windows)](#build-from-source-macos-linux-windows)
+      * [macOS/Linux](#macoslinux-2)
+      * [Windows](#windows-2)
+        * [With GUI (recommended)](#with-gui-recommended-1)
+        * [With PowerShell](#with-powershell-1)
   * [Usage](#usage)
     * [Configuration](#configuration)
     * [Entity files](#entity-files)
@@ -26,32 +40,120 @@ Amock is a simple API mock server that uses JSON files to define entities from w
 
 ## Instalation
 
+### npm (macOS, Linux, Windows)
+
+```bash
+npm install -g amock-cli
+```
+
+### GoBinaries (macOS, Linux)
+
+```bash
+curl -sf https://gobinaries.com/matronator/amock | sh
+```
+
 ### Homebrew (macOS)
 
 ```bash
 brew install matronator/tap/amock
 ```
 
-### Download from releases (macOS, Linux, Windows)
+### Manually download from releases (macOS, Linux, Windows)
 
-Go to the [releases page](https://github.com/matronator/amock/releases/latest) and download the latest version for your OS. Extract the files and move the binary to a directory in your PATH or add the directory to your PATH.
+Go to the [releases page](https://github.com/matronator/amock/releases/latest) and download the latest version for your OS. Extract the files and do either one of these:
+
+1. Move the binary to a folder in your `$PATH`, or...
+2. Add the folder to your `$PATH`
+
+#### 1. Move the binary to `/usr/local/bin` or some other folder in your PATH:
+
+##### macOS/Linux
 
 ```bash
-# Either move the binary to a directory in your PATH
-mv path/to/extracted/binary/amock /usr/local/bin
+sudo mv path/to/extracted/binary/amock /usr/local/bin
+```
 
-# Or add the directory to your PATH
+##### Windows
+
+```txt
+move path\to\extracted\binary\amock.exe C:\path\to\bin
+```
+
+#### 2. Add the directory to your PATH:
+
+First move the extracted binary to some permanent folder. Then add the directory to your PATH by running:
+
+##### macOS/Linux
+
+```bash
 export PATH=$PATH:path/to/extracted/binary
 ```
 
-### Manual installation (macOS, Linux, Windows)
+To make this permanent, add this line to your `~/.bashrc` or `~/.zshrc` or `~/.profile` file.
 
-Requires Go 1.16 or later
+##### Windows
+
+###### With GUI (recommended)
+
+1. Open `"My Computer" > "Properties" > "Advanced" > "Environment Variables" > "Path"`
+2. Add the path to the `amock.exe` file to the list
+3. Restart your terminal
+
+###### With PowerShell
+
+```powershell
+$PATH = [Environment]::GetEnvironmentVariable("PATH", "Machine")
+$amock_path = "C:\path\to\amock"
+if( $PATH -notlike "*"+$amock_path+"*" ){
+    [Environment]::SetEnvironmentVariable("PATH", "$PATH;$amock_path", "Machine")
+}
+```
+
+### Build from source (macOS, Linux, Windows)
+
+> [!IMPORTANT]
+> Requires Go 1.16 or later
+
+#### macOS/Linux
 
 ```bash
 git clone https://github.com/matronator/amock.git
 cd amock
-go install
+go build -o cmd/amock -ldflags="-s -w" .
+sudo mv cmd/amock /usr/local/bin
+# have to use sudo because /usr/local/bin is protected
+```
+
+Make sure that /user/local/bin is in your PATH. If not edit your `~/.bashrc` or `~/.zshrc` or `~/.profile` and add the following line:
+
+```bash
+export PATH=$PATH:/usr/local/bin
+```
+
+#### Windows
+
+```bash
+git clone https://github.com/matronator/amock.git
+cd amock
+go build -o cmd/amock.exe -ldflags="-s -w" .
+```
+
+Next move the `amock.exe` to some permanent location and add it to your PATH with either the GUI or PowerShell:
+
+##### With GUI (recommended)
+
+1. Open `"My Computer" > "Properties" > "Advanced" > "Environment Variables" > "Path"`
+2. Add the path to the `amock.exe` file to the list
+3. Restart your terminal
+
+##### With PowerShell
+
+```powershell
+$PATH = [Environment]::GetEnvironmentVariable("PATH", "Machine")
+$amock_path = "C:\path\to\amock"
+if( $PATH -notlike "*"+$amock_path+"*" ){
+    [Environment]::SetEnvironmentVariable("PATH", "$PATH;$amock_path", "Machine")
+}
 ```
 
 ## Usage

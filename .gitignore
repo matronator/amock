@@ -28,3 +28,6 @@ go.work
 .amock/
 
 dist/
+build/
+cmd/
+.idea/

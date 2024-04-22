@@ -12,6 +12,7 @@ before:
   hooks:
     - go mod download
     - go mod tidy
+    - cd npm && npm version from-git
 
 builds:
   - env:
@@ -80,6 +81,11 @@ brews:
 
     folder: Formula
 
+    repository:
+      owner: matronator
+      name: homebrew-tap
+      branch: main
+
     # Caveats for the user of your binary.
     # Default is empty.
     caveats: ""
@@ -90,7 +96,7 @@ brews:
 
     # SPDX identifier of your app's license.
     # Default is empty.
-    license: "MIT"
+    license: "GPL-3.0-only"
 
     # Packages your package depends on.
     dependencies:
