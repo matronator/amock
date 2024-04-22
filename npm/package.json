@@ -1,6 +1,6 @@
 {
   "name": "amock-cli",
-  "version": "0.1.3",
+  "version": "0.1.15",
   "description": "Simple API mock server",
   "main": "index.js",
   "directories": {
