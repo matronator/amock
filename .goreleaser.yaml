@@ -63,7 +63,7 @@ brews:
   - # GitHub/GitLab repository to push the formula to
     tap:
       owner: matronator
-      name: homebrew-tap
+      name: amock
 
     name: amock
     # Template for the url which is determined by the given Token (github or gitlab)
@@ -79,12 +79,6 @@ brews:
       email: info@matronator.cz
 
     folder: Formula
-
-    repository:
-      owner: matronator
-      name: homebrew-tap
-      branch: main
-      token: ${{ secrets.BREW_TOKEN }}
 
     # Caveats for the user of your binary.
     # Default is empty.
