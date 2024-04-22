@@ -63,7 +63,7 @@ brews:
   - # GitHub/GitLab repository to push the formula to
     tap:
       owner: matronator
-      name: amock
+      name: homebrew-tap
 
     name: amock
     # Template for the url which is determined by the given Token (github or gitlab)
