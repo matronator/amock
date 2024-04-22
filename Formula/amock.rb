@@ -5,7 +5,7 @@
 class Amock < Formula
   desc "A simple mock server for REST APIs."
   homepage "https://github.com/matronator/amock"
-  version "0.1.16"
+  version "0.1.17"
   license "GPL-3.0-only"
 
   depends_on "git"
@@ -13,16 +13,16 @@ class Amock < Formula
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/matronator/amock/releases/download/v0.1.16/amock_Darwin_x86_64.tar.gz"
-      sha256 "04161a7f2ff97b08f33623d4c4522b987ecab4e754598ce621e3876b1688a377"
+      url "https://github.com/matronator/amock/releases/download/v0.1.17/amock_Darwin_x86_64.tar.gz"
+      sha256 "e8344e7879e0fc1e60d87081678182736a87e8733378daefea5c67159ce7a92c"
 
       def install
         bin.install "amock"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/matronator/amock/releases/download/v0.1.16/amock_Darwin_arm64.tar.gz"
-      sha256 "836f5071df0e3844b65a6c9a8b11890a0ce2727dd60825775791289cab936336"
+      url "https://github.com/matronator/amock/releases/download/v0.1.17/amock_Darwin_arm64.tar.gz"
+      sha256 "9de24df356ab558f04e237b85385fcaf2b6f3d9784afd1d0d01be94ce9119e44"
 
       def install
         bin.install "amock"
@@ -32,8 +32,8 @@ class Amock < Formula
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://github.com/matronator/amock/releases/download/v0.1.16/amock_Linux_x86_64.tar.gz"
-      sha256 "0c8526cddc66ff3c16709dbce69f0f8e45abaef07e2c934031c520d557fe5cae"
+      url "https://github.com/matronator/amock/releases/download/v0.1.17/amock_Linux_x86_64.tar.gz"
+      sha256 "e7796ff664318f82c97f051ba1b2d3cc3282d5846bccf5d5d94c51cde1269f02"
 
       def install
         bin.install "amock"
