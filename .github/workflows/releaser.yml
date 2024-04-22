@@ -45,6 +45,9 @@ jobs:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
       - name: Publish
-        run: cd ./npm && npm version from-git && npm publish
+        run: |
+          git config --global user.email "${{ secrets.EMAIL }}"
+          git config --global user.name "Matronator"
+          cd ./npm && npm version from-git && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
