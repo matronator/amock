@@ -61,7 +61,7 @@ snapshot:
 
 brews:
   - # GitHub/GitLab repository to push the formula to
-    tap:
+    repository:
       owner: matronator
       name: amock
 
@@ -78,7 +78,7 @@ brews:
       name: matronator
       email: info@matronator.cz
 
-    folder: Formula
+    directory: Formula
 
     # Caveats for the user of your binary.
     # Default is empty.
