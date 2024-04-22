@@ -52,9 +52,10 @@ jobs:
           git config --global user.email "${{ secrets.EMAIL }}"
           git config --global user.name "Matronator"
           cd ./npm && npm version from-git --no-git-tag-version && npm publish
-          git fetch && git checkout main && git pull && git add . && git commit -am "Bump npm version" && git push origin main
+          git fetch && git checkout main && git pull && git add . && git commit -am "Bump npm version" && git push origin --all
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Push Formula to Tap
         uses: cpina/github-action-push-to-another-repository@v1.7.2
         env:
