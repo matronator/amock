@@ -10,18 +10,20 @@ on:
 
 permissions:
   contents: write
-  packages: write
-  repository-projects: write
-  # issues: write
 
 jobs:
   goreleaser:
+    permissions:
+      contents: write
+      packages: write
+      actions: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -37,7 +39,7 @@ jobs:
           version: latest
           args: release --clean
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
           # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
       - name: Publish to NPM
@@ -53,14 +55,14 @@ jobs:
           git checkout main && git fetch origin && git pull && git commit -am "Bump npm version" && git push origin main
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Push generated webpage to another repository
+      - name: Push Formula to Tap
         uses: cpina/github-action-push-to-another-repository@v1.7.2
         env:
-          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+          API_TOKEN_GITHUB: ${{ secrets.GH_TOKEN }}
         with:
           source-directory: 'Formula'
           destination-github-username: 'matronator'
           destination-repository-name: 'homebrew-tap'
           user-email: ${{ secrets.EMAIL }}
-          target-branch: main
+          target-branch: 'main'
           target-directory: 'Formula'
