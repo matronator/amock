@@ -11,6 +11,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/jwalton/gchalk"
@@ -18,7 +19,7 @@ import (
 
 var ConfigPaths = []string{
 	".amock.json",
-	".amockrc",
+	".amockrc.json",
 	".amock.json.json",
 	".amock.json.yml",
 	".amock.json.yaml",
@@ -51,6 +52,8 @@ func init() {
 	Debug("Creating database from config...")
 
 	config, _ = parseConfigFiles(ConfigPaths...)
+
+	Debug("Configuration loaded", "config", config)
 
 	if config == nil {
 		log.Fatal("No configuration file found")
@@ -118,9 +121,20 @@ func StartServer() {
 	fmt.Println(gchalk.Bold("Starting server at " + url))
 	fmt.Println("\nAvailable routes:")
 
+	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 2, '\t', tabwriter.AlignRight)
 	router := InitHandlers(config, &db)
+
+	Debug("Initializing routes...")
+	Debug("Routes", "routes", Routes)
+
+	fmt.Println("-----------------------------------------------")
+
 	for _, route := range Routes {
-		fmt.Println("  " + gchalk.Bold(RequestMethodColor(route.Method, false)) + "\t" + url + route.Path + "\t" + gchalk.Dim("[entity: "+gchalk.WithItalic().Bold(strings.Split(route.Path, "/")[1])+"]"))
+		_, err := fmt.Fprintln(writer, gchalk.Bold(RequestMethodColor(route.Method, false))+"\t"+url+route.Path+"\t"+gchalk.Dim("[entity: "+gchalk.WithItalic().Bold(strings.Split(route.Path, "/")[1])+"]"))
+		writer.Flush()
+		if err != nil {
+			Error("Error writing to tabwriter", "error", err)
+		}
 	}
 	fmt.Println("")
 
@@ -173,6 +187,7 @@ func buildTablesFromConfig() {
 		for _, entry := range dir {
 			filename := entry.Name()
 			table, name := getOrCreateTable(filename, path.Join(config.Dir, filename))
+			Debug("Table "+gchalk.Bold(name)+" created from file "+gchalk.Bold(filename), "table", name, "file", filename)
 			db.Tables[name] = *table
 		}
 	}

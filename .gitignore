@@ -24,7 +24,7 @@ node_modules
 go.work
 
 # amock files
-+.amock.json
+.amockrc
 .amock/
 
 dist/

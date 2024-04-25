@@ -239,16 +239,41 @@ func WriteTable(table *Table, collection EntityCollection) error {
 	return err
 }
 
-func AppendTable(table *Table, entity Entity) error {
+func AppendTable(table *Table, entity *Entity) error {
 	collection, err := ReadTable(table)
 
 	if err != nil {
 		return err
 	}
 
-	collection = append(collection, entity)
+	collection = append(collection, *entity)
 
 	err = WriteTable(table, collection)
 
 	return err
+}
+
+func RemoveById(table *Table, id string) error {
+	collection, err := ReadTable(table)
+
+	Debug("Removing entity", "id", id, "table", table.Name)
+
+	if err != nil {
+		return err
+	}
+
+	for i, entity := range collection {
+		if entity["id"] == id {
+			collection = append(collection[:i], collection[i+1:]...)
+			break
+		}
+	}
+
+	err = WriteTable(table, collection)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

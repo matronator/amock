@@ -15,5 +15,6 @@
   "is_active": "bool",
   "token": "string",
   "created_at": "date.timestamp",
-  "updated_at": "date.timestamp"
+  "updated_at": "date.timestamp",
+  "posts[]": "post.json"
 }

@@ -70,6 +70,22 @@ func InitHandlers(config *Config, db *Database) *httprouter.Router {
 			Debug("PUT request received", "table", table.Name)
 			handlePost(w, r, &table)
 		})
+
+		Routes = append(Routes, Route{"DELETE", "/" + table.Name + "/:id"})
+		router.DELETE("/"+table.Name+"/:id", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+			Debug("DELETE request received", "table", table.Name)
+
+			err := RemoveById(&table, ps.ByName("id"))
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+
+			_, _ = w.Write([]byte(`{"message": "Entity removed"}`))
+		})
 	}
 
 	Debug("Handlers initialized")
@@ -100,7 +116,7 @@ func handlePost(w http.ResponseWriter, r *http.Request, table *Table) {
 				return
 			}
 
-			err = AppendTable(newTable, *newEntity)
+			err = AppendTable(newTable, newEntity)
 
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -133,7 +149,7 @@ func handlePost(w http.ResponseWriter, r *http.Request, table *Table) {
 			backup, _ := ReadTable(newTable)
 
 			for _, entity := range collection {
-				err = AppendTable(newTable, entity)
+				err = AppendTable(newTable, &entity)
 
 				if err != nil {
 					_ = WriteTable(newTable, backup)

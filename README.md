@@ -11,7 +11,6 @@ Amock is a simple API mock server that uses JSON files to define entities from w
     * [API Mock Server](#api-mock-server)
   * [Instalation](#instalation)
     * [npm (macOS, Linux, Windows)](#npm-macos-linux-windows)
-    * [GoBinaries (macOS, Linux)](#gobinaries-macos-linux)
     * [Homebrew (macOS)](#homebrew-macos)
     * [Manually download from releases (macOS, Linux, Windows)](#manually-download-from-releases-macos-linux-windows)
       * [1. Move the binary to `/usr/local/bin` or some other folder in your PATH:](#1-move-the-binary-to-usrlocalbin-or-some-other-folder-in-your-path)
@@ -44,12 +43,6 @@ Amock is a simple API mock server that uses JSON files to define entities from w
 
 ```bash
 npm install -g amock-cli
-```
-
-### GoBinaries (macOS, Linux)
-
-```bash
-curl -sf https://gobinaries.com/matronator/amock | sh
 ```
 
 ### Homebrew (macOS)
@@ -158,9 +151,23 @@ if( $PATH -notlike "*"+$amock_path+"*" ){
 
 ## Usage
 
+After installing you can simply start the server by running:
+
+```bash
+amock
+```
+
+You can also optionally specify the host you want to use for the server by supplying it as the first argument like this:
+
+```bash
+amock localhost:1234
+```
+
+This will overwrite the host and port set in your config file and start the server on `localhost:1234`.
+
 ### Configuration
 
-First you need to create a config file. The config file is a JSON/YAML/TOML file that defines the entities that the server will mock. Valid config file names are these in order of priority (the first one found will be used):
+You need to create a config file for the server to be of any use. The config file is a JSON/YAML/TOML file that defines the entities that the server will mock and some other settings. Valid config file names are these in order of priority (the first one found will be used):
 
 ```json
 [".amock.json", ".amockrc", ".amock.json.json", ".amock.json.yml",
@@ -179,7 +186,7 @@ Here is an example of a config file:
     "user.json", // relative path to the entity file
     "post.json"
   ],
-  "dir": "path/to/entities/folder", // default is empty
+  "dir": "relative/path/to/entities/dir", // default is empty
   "initCount": 20 // default is 20 - number of entities to generate on server start
 }
 ```
@@ -194,7 +201,7 @@ AMOCK_ENTITIES='[user.json, post.json]' # default is empty
 AMOCK_INIT_COUNT=20
 ```
 
-You must set either `entities` where you list individual files or `dir` where you specify a directory containing the entity files and all files in that directory will be used.
+You must set either `entities` where you list individual files or `dir` where you specify a directory containing the entity files and all valid files in that directory will be used.
 
 You can set both but files from `entities` will override files with the same name found in the `dir` directory. Both `entities` and `dir` are optional but at least one must be set and paths in both are relative to the config file.
 
@@ -255,13 +262,18 @@ This would generate an entity object `user` looking like this:
 
 When defining your entity you can use the following types and the server will generate the data for you. Data is generated once on server start if not already in store and whenever a new entity is created without specifying the property (if it's not required).
 
-The syntax for defining a property is `"<name>": "<type>.<subtype?>:<options>"` where `name` is the name of the property, `type` is the type of the property followed by a dot and an optional `subtype` and optionally a colon followed by `options` for the type.
+The syntax for defining a property is 
+
+`"<name>": "<type>.<subtype?>:<options>"`
+
+where `name` is the name of the property, `type` is the type of the property followed by a dot and an optional `subtype` and optionally a colon followed by `options` for the type.
 
 ##### Required and nullable properties
 
 If the property name ends with `!` it is required and must be present in the request. If it ends with `?` it is nullable meaning that you can send a `null` value for it in your request.
 
-You can check some examples of how to define entities in the [examples](/examples) folder.
+> [!TIP]
+> You can check some examples of how to define entities in the [examples](/examples) folder.
 
 ##### Types
 
@@ -309,7 +321,8 @@ You can use the following types and subtypes to define your properties:
     "range":   Random float in Range,
 },
 "date": {
-    "":          Date, // no subtype
+    "":          Date, // no subtype, but you can specify the format
+        [string:  Date format (e.g. yyyy-MM-dd)],
     "timestamp": Timestamp,
     "day":       Day,
     "month":     Month,
@@ -318,8 +331,8 @@ You can use the following types and subtypes to define your properties:
     "future":    Future,
     "past":      Past,
 },
-"bool": True or false,
-"enum": Pick a random item from the list provided in options,
+"bool": true or false,
+"enum": Pick a random item from the list provided in options, separated by commas,
 "id": {
     "":         Sequential ID, // no subtype
     "sequence": Sequential ID,
