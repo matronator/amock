@@ -48,7 +48,8 @@ var config *Config
 var db Database
 
 func init() {
-	InitLogger()
+	parseFlags()
+
 	Debug("Creating database from config...")
 
 	config, _ = parseConfigFiles(ConfigPaths...)
@@ -131,9 +132,13 @@ func StartServer() {
 
 	for _, route := range Routes {
 		_, err := fmt.Fprintln(writer, gchalk.Bold(RequestMethodColor(route.Method, false))+"\t"+url+route.Path+"\t"+gchalk.Dim("[entity: "+gchalk.WithItalic().Bold(strings.Split(route.Path, "/")[1])+"]"))
-		writer.Flush()
 		if err != nil {
 			Error("Error writing to tabwriter", "error", err)
+		}
+
+		err = writer.Flush()
+		if err != nil {
+			Error("Error flushing", "error", err)
 		}
 	}
 	fmt.Println("")

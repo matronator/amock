@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"log/slog"
 	"net/http"
@@ -33,20 +32,6 @@ func Error(msg string, args ...any) {
 
 func Debug(msg string, args ...any) {
 	slog.Debug(gchalk.Dim(msg), args...)
-}
-
-var Verbose = false
-var verboseFlag = flag.Bool("verbose", false, "Enable verbose logging")
-
-func InitLogger() {
-	flag.BoolVar(verboseFlag, "v", false, "Shorthand for `--verbose`")
-	flag.Parse()
-	Verbose = *verboseFlag
-
-	if Verbose {
-		LogLevel.Set(slog.LevelDebug)
-		slog.SetLogLoggerLevel(LogLevel.Level())
-	}
 }
 
 func LogRequest(next http.Handler) http.Handler {
