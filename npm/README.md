@@ -170,7 +170,7 @@ This will overwrite the host and port set in your config file and start the serv
 You need to create a config file for the server to be of any use. The config file is a JSON/YAML/TOML file that defines the entities that the server will mock and some other settings. Valid config file names are these in order of priority (the first one found will be used):
 
 ```json
-[".amock.json", ".amockrc.json", ".amock.json.json", ".amock.json.yml",
+[".amock.json", ".amockrc", ".amock.json.json", ".amock.json.yml",
 ".amock.json.yaml", ".amock.json.toml", "amock.config",
 "amock.json", "amock.yml", "amock.yaml", "amock.toml"]
 ```
