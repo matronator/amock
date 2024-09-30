@@ -7,7 +7,7 @@ require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/jwalton/gchalk v1.3.0
-	github.com/oriser/regroup v0.0.0-20230527212431-1b00c9bdbc5b
+	github.com/oriser/regroup v0.0.0-20240925165441-f6bb0e08289e
 )
 
 require (
