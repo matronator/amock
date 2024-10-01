@@ -20,6 +20,8 @@ github.com/jwalton/go-supportscolor v1.1.0 h1:HsXFJdMPjRUAx8cIW6g30hVSFYaxh9yRQw
 github.com/jwalton/go-supportscolor v1.1.0/go.mod h1:hFVUAZV2cWg+WFFC4v8pT2X/S2qUUBYMioBD9AINXGs=
 github.com/oriser/regroup v0.0.0-20230527212431-1b00c9bdbc5b h1:9L56kn3D7E9jd2R9U9p7tfzaBaLTVPt4HgnrP+g2VGk=
 github.com/oriser/regroup v0.0.0-20230527212431-1b00c9bdbc5b/go.mod h1:6eb1+OYHjOvThrtgEVue70NTfmzkalZgohRtndAUUbI=
+github.com/oriser/regroup v0.0.0-20240925165441-f6bb0e08289e h1:cL0lMYYEbfEUBghQd4ytnl8B8Ktdm+JremTyAagegZ0=
+github.com/oriser/regroup v0.0.0-20240925165441-f6bb0e08289e/go.mod h1:tUOeYZJlwO7jSmM5ko1jTCiQaWQMvh58IENEfjwYzh8=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
