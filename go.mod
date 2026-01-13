@@ -3,7 +3,7 @@ module amock
 go 1.25
 
 require (
-	github.com/brianvoe/gofakeit/v7 v7.12.1
+	github.com/brianvoe/gofakeit/v7 v7.14.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/jwalton/gchalk v1.3.0
