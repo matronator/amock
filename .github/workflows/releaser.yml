@@ -31,7 +31,7 @@ jobs:
       # More assembly might be required: Docker logins, GPG, etc.
       # It all depends on your needs.
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@ec59f474b9834571250b370d4735c50f8e2d1e29 # v7
+        uses: goreleaser/goreleaser-action@e24998b8b67b290c2fa8b7c14fcfa7de2c5c9b8c # v7
         with:
           # either 'goreleaser' (default) or 'goreleaser-pro'
           distribution: goreleaser
@@ -43,7 +43,7 @@ jobs:
           # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
           # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
       - name: Publish to NPM
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
